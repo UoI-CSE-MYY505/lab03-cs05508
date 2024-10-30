@@ -101,6 +101,56 @@ rgb888_to_rgb565:
 # ----------------------------------------
 # Write your code here.
 # You may move the "return" instruction (jalr zero, ra, 0).
+    add t0, zero, zero # counter for row
+loopRow:
+    bge t0,a2, endLoopRow
+    add t1, zero, zero # counter for column 
+loopColumn:
+    bge t1, a1, endLoopColumn 
+    lbu t2, 0(a0) #r
+    lbu t3, 1(a0) #g
+    lbu t4, 2(a0) #c
+    andi t2, t2, 0xf8 # it clears the 3 lsbs
+    slli t2, t2, 8 # it shifts to the last place of R in rgb565
+    andi t3, t3, 0xfc # it clears the 3 lsbs
+    slli t3, t3, 3 # it shifts to the last place of G in rgb565
+    srli t4,t4,3 # it removes the 3 lsbs of blue
+    or t2,t2,t3 
+    or t2,t2,t4
+    sh t2, 0(a3) # it stires 16bits in rgb565 to output
+    addi a0, a0,3 # it moves the input pointer to the next pixel 
+    addi a3,a3,2 # it moves the output pointer to the next pixel 
+    addi t1,t1,1 
+    j loopColumn
+endLoopColumn:
+    addi t0, t0, 1
+    j loopRow
+endLoopRow:
+    jalr zero, ra, 0
+    
+    
+rgb656_to_rgb888:
+    add t0, zero,zero # counter of row
+rowLoop:
+    bge t0, a2, endRowLoop
+    add t1,zero,zero # counter of column
+columnLoop:
+    bge t1, a1, endColumnLoop
+    lhu t2, 0(a0)
+    srli t3,t2, 8 # it extracts red 
+    andi t3, t3, 0xf8 # it clears 2 lsbs
+    sb t3, 1(a3) # it stores in out of the image
+    slli t3,t2,3 
+    andi t3, t3, 0xf8 # it clears 3 lsbs
+    sb t3, 3(a3) # it stores in out image
+    addi a0, a0, 2 # it moves input pointer to the next pixel 
+    addi a3, a3, 3 # it moves output pointer to the next pixel 
+    addi t1, t1, 1
+    j columnLoop 
+endColumnLoop:
+    addi t0,a0,1
+    j rowLoop
+endRowLoop:
     jalr zero, ra, 0
 
 
